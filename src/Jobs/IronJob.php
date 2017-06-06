@@ -59,7 +59,15 @@ class IronJob extends Job implements JobContract
      */
     public function fire()
     {
-        $this->resolveAndFire(json_decode($this->getRawBody(), true));
+      $rawBody = json_decode($this->getRawBody(), true);
+
+      if(!isset($rawBody['job'])) {
+        $this->delete();
+
+        throw new \RuntimeException('Encountered an issue firing the job. Job JSON:' . $rawBody);
+      }
+
+      $this->resolveAndFire($rawBody);
     }
 
     /**
